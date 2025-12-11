@@ -9,9 +9,6 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
-using Crestron.Blazor.Identity.Ef.Sqlite.Components.Account.Pages;
-using Crestron.Blazor.Identity.Ef.Sqlite.Components.Account.Pages.Manage;
-using Crestron.Blazor.Identity.Ef.Sqlite.Data;
 
 namespace Microsoft.AspNetCore.Routing;
 

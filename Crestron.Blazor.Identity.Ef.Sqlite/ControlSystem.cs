@@ -10,9 +10,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Radzen;
 using SQLitePCL;
-using Crestron.Blazor.Identity.Ef.Sqlite.Components;
-using Crestron.Blazor.Identity.Ef.Sqlite.Components.Account;
-using Crestron.Blazor.Identity.Ef.Sqlite.Data;
 
 namespace Crestron.Blazor.Identity.Ef.Sqlite;
 
@@ -29,12 +26,10 @@ public class ControlSystem : CrestronControlSystem
         {
             try
             {
+                // Force SQLitePCL to use the native SQLite3 library
                 raw.SetProvider(new SQLite3Provider_sqlite3());
                 raw.FreezeProvider();
                 
-                // Use System.Data.SQLite which should provide its own native library handling
-                CrestronConsole.PrintLine("Initializing SQLite with System.Data.SQLite.Core");
-
                 var builder = WebApplication.CreateBuilder();
 
                 // Load static web assets manifest
@@ -42,7 +37,8 @@ public class ControlSystem : CrestronControlSystem
 
                 builder.WebHost.ConfigureKestrel(serverOptions =>
                 {
-                    serverOptions.Listen(System.Net.IPAddress.Parse("10.0.3.10"), 7070);
+                    serverOptions.Listen(System.Net.IPAddress.Parse(CrestronEthernetHelper.GetEthernetParameter(
+                        CrestronEthernetHelper.ETHERNET_PARAMETER_TO_GET.GET_CURRENT_IP_ADDRESS, 0)), 7070);
                 });
 
                 // Add services to the container.
