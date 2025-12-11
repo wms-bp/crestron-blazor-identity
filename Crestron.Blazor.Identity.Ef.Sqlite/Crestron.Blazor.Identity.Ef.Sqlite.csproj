@@ -1,0 +1,81 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>aspnet-Crestron.Blazor.Identity.Ef.Sqlite-0c05b1a7-d4c5-408d-b249-a3d63f542717</UserSecretsId>
+    </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+    </PropertyGroup>
+    <PropertyGroup>
+        <CssBundlerGenerateDuringBuild>true</CssBundlerGenerateDuringBuild>
+        <EnableDefaultContentItems>true</EnableDefaultContentItems>
+        <StaticWebAssetBasePath>/</StaticWebAssetBasePath>
+        <GenerateStaticWebAssetsManifest>true</GenerateStaticWebAssetsManifest>
+        <StaticWebAssetsEnabled>true</StaticWebAssetsEnabled>
+        <IncludeStaticWebAssetsInPublish>true</IncludeStaticWebAssetsInPublish>
+        <CopyStaticWebAssetsToOutput>true</CopyStaticWebAssetsToOutput>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <PlatformTarget>AnyCPU</PlatformTarget>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Update="Data\app.db" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Update="wwwroot\**\*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Crestron.SimplSharp.SDK.Program" Version="2.21.171" />
+        <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.20" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.20" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.20" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.20" />
+        <PackageReference Include="Radzen.Blazor" Version="8.3.2" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="8.0.22" />
+        <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="8.0.22" />
+        <PackageReference Include="SQLitePCLRaw.core" Version="2.1.6" />
+        <PackageReference Include="SQLitePCLRaw.provider.sqlite3" Version="2.1.6" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="wwwroot\css\" />
+      <Folder Include="wwwroot\js\" />
+    </ItemGroup>
+
+    <!-- Custom target to copy static web assets -->
+    <!-- Must run AFTER static web assets are resolved but BEFORE final build -->
+    <Target Name="CopyStaticWebAssetsForCrestron"
+            AfterTargets="ResolveStaticWebAssetsInputs;GenerateStaticWebAssetsManifest"
+            BeforeTargets="CoreBuild">
+
+        <!-- Get all static web assets from the manifest -->
+        <ItemGroup>
+            <StaticWebAssetsToPublish Include="@(StaticWebAsset)"
+                                       Condition="'%(StaticWebAsset.AssetKind)' == 'All' OR '%(StaticWebAsset.AssetKind)' == 'Publish'" />
+        </ItemGroup>
+
+        <!-- Copy each static web asset to the output directory with proper _content structure -->
+        <Copy SourceFiles="%(StaticWebAssetsToPublish.Identity)"
+              DestinationFiles="$(OutputPath)wwwroot\%(StaticWebAssetsToPublish.RelativePath)"
+              SkipUnchangedFiles="true"
+              Condition="'%(StaticWebAssetsToPublish.SourceType)' != 'Package'" />
+
+        <!-- Copy package assets to _content directory structure -->
+        <Copy SourceFiles="%(StaticWebAssetsToPublish.Identity)"
+              DestinationFiles="$(OutputPath)wwwroot\_content\%(StaticWebAssetsToPublish.SourceId)\%(StaticWebAssetsToPublish.RelativePath)"
+              SkipUnchangedFiles="true"
+              Condition="'%(StaticWebAssetsToPublish.SourceType)' == 'Package'" />
+
+        <Message Text="Copied static web asset: %(StaticWebAssetsToPublish.RelativePath) from %(StaticWebAssetsToPublish.SourceType)"
+                 Importance="high" />
+    </Target>
+
+</Project>

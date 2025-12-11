@@ -1,0 +1,102 @@
+﻿@page "/"
+@rendermode InteractiveServer
+@inject ThemeService ThemeService
+@implements IDisposable
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<RadzenButton Click="@ButtonClicked" Text="Hi"></RadzenButton>
+<RadzenStack class="rz-p-0 rz-p-md-6 rz-p-lg-12">
+    <RadzenCard Variant="Variant.Outlined">
+        <RadzenStack Orientation="Orientation.Horizontal" Wrap="FlexWrap.Wrap">
+            <RadzenStack Orientation="Orientation.Vertical" Gap="0.5rem" class="rz-p-sm-2">
+                <RadzenLabel Text="Change the current theme" />
+                <RadzenDropDown Name="ThemeDropDown" TValue="string" Value="@ThemeService.Theme" ValueChanged="@ChangeTheme" Data="@Themes.All" TextProperty=@nameof(Theme.Text) ValueProperty=@nameof(Theme.Value)>
+                </RadzenDropDown>
+            </RadzenStack>
+            <RadzenStack Orientation="Orientation.Vertical" Gap="0.5rem" class="rz-p-sm-2">
+                <RadzenLabel Text="Right-to-left" />
+                <RadzenSwitch Value=@(ThemeService.RightToLeft == true) ValueChanged=@ChangeRightToLeft />
+            </RadzenStack>
+            <RadzenStack Orientation="Orientation.Vertical" Gap="0.5rem" class="rz-p-sm-2">
+                <RadzenLabel Text="WCAG compliant colors" />
+                <RadzenSwitch Value="@(ThemeService.Wcag == true)" Name="WCAG" ValueChanged=@ChangeWcag />
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenCard>
+</RadzenStack>
+
+<RadzenCard class="rz-my-12 rz-mx-auto rz-p-4 rz-p-md-12" style="max-width: 600px;">
+    <RadzenTemplateForm Data=@("LoginWithDefaultValues")>
+        <RadzenLogin AllowRegister="true" AllowResetPassword="true" Username=@userName Password=@password
+                     AllowRememberMe="true" RememberMe="@rememberMe"
+                     Login=@(args => OnLogin(args, "Login with default values"))
+                     ResetPassword=@(args => OnResetPassword(args, "Login with default values"))
+                     Register=@(args => OnRegister("Login with default values")) />
+    </RadzenTemplateForm>
+</RadzenCard>
+
+@code {
+    
+    string userName = "admin";
+    string password = "admin";
+    bool rememberMe = true;
+
+
+
+    void OnLogin(LoginArgs args, string name)
+    {
+        Console.WriteLine($"{name} -> Username: {args.Username}, password: {args.Password}, remember me: {args.RememberMe}");
+    }
+
+    void OnRegister(string name)
+    {
+        Console.WriteLine($"{name} -> Register");
+    }
+
+    void OnResetPassword(string value, string name)
+    {
+        Console.WriteLine($"{name} -> ResetPassword for user: {value}");
+    }
+    
+
+    void ChangeTheme(string value)
+    {
+        Console.WriteLine($"Theme changed to {value}");
+        ThemeService.SetTheme(value);
+    }
+
+    void ChangeRightToLeft(bool value)
+    {
+        ThemeService.SetRightToLeft(value);
+    }
+
+    void ChangeWcag(bool value)
+    {
+        ThemeService.SetWcag(value);
+    }
+
+    protected override void OnInitialized()
+    {
+        ThemeService.ThemeChanged += OnThemeChanged;
+    }
+
+    public void Dispose()
+    {
+        ThemeService.ThemeChanged -= OnThemeChanged;
+    }
+
+    void OnThemeChanged()
+    {
+        Console.WriteLine($"Theme changed to {ThemeService.Theme}");
+    }
+    
+    
+    void ButtonClicked()
+    {
+        Console.WriteLine("button clicked");
+    }
+}

@@ -1,0 +1,78 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.Components.Authorization
+
+<RadzenLayout>
+    <RadzenHeader>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" Gap="0">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
+                <RadzenSidebarToggle Click="@(() => sidebar1Expanded = !sidebar1Expanded)" />
+                <RadzenLabel Text="Header" />
+            </RadzenStack>
+            <AuthorizeView>
+                <Authorized>
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+                        <RadzenProfileMenu class="rz-pr-2">
+                            <Template>
+                                <RadzenGravatar Email="@context.User.Identity?.Name" />
+                            </Template>
+                            <ChildContent>
+                                <RadzenText TextAlign="TextAlign.Center" Text="@context.User.Identity?.Name" />
+                                <form action="Account/Logout" method="post">
+                                    <AntiforgeryToken />
+                                    <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                                    <RadzenButton Text="Logout" Icon="logout" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" class="w-100 mb-1" ButtonType="ButtonType.Submit" />
+                                </form>
+                                <RadzenProfileMenuItem Text="Menu" Path="menu" Icon="line_weight" />
+                                <RadzenProfileMenuItem Text="FileInput" Path="fileinput" Icon="attach_file" />
+                                <RadzenProfileMenuItem Text="Dialog" Path="dialog" Icon="perm_media" />
+                                <RadzenProfileMenuItem Text="Notification" Path="notification" Icon="announcement" />
+                            </ChildContent>
+                        </RadzenProfileMenu>
+                    </RadzenStack>
+                </Authorized>
+            </AuthorizeView>
+        </RadzenStack>
+    </RadzenHeader>
+
+    <RadzenSidebar @bind-Expanded="@sidebar1Expanded">
+        <RadzenPanelMenu>
+            <RadzenPanelMenuItem Path="/" Text="Home" Icon="home" />
+            <RadzenPanelMenuItem Path="/counter" Text="Counter" Icon="account_box" />
+            <RadzenPanelMenuItem Text="Auth" Icon="https" Path="/auth" />
+        </RadzenPanelMenu>
+    </RadzenSidebar>
+
+    <RadzenBody>
+        <div class="rz-p-4">
+            @Body
+        </div>
+    </RadzenBody>
+
+    <RadzenFooter>
+        Footer
+    </RadzenFooter>
+</RadzenLayout>
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
+
+@code {
+    bool sidebar1Expanded = true;
+    private string? currentUrl;
+
+    protected override void OnInitialized()
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        StateHasChanged();
+    }
+}
