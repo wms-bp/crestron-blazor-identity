@@ -15,6 +15,9 @@ namespace Crestron.Blazor.Identity.Ef.Sqlite;
 
 public class ControlSystem : CrestronControlSystem
 {
+    private const string DbBasePath = "/user";
+    private const string DbFileName = "app.db";
+    
     public ControlSystem()
     {
 
@@ -32,7 +35,10 @@ public class ControlSystem : CrestronControlSystem
                 
                 var builder = WebApplication.CreateBuilder();
 
-                // Load static web assets manifest
+                /*
+                 Use static web assets. Ensures static assets from _content are loaded from wwwroot from CPZ extraction
+                 See CSPROJ file for PropertyGroup with StaticWebAssets for more details
+                 */
                 StaticWebAssetsLoader.UseStaticWebAssets(builder.Environment, builder.Configuration);
 
                 builder.WebHost.ConfigureKestrel(serverOptions =>
@@ -41,7 +47,7 @@ public class ControlSystem : CrestronControlSystem
                         CrestronEthernetHelper.ETHERNET_PARAMETER_TO_GET.GET_CURRENT_IP_ADDRESS, 0)), 7070);
                 });
 
-                // Add services to the container.
+                
                 builder.Services.AddRazorComponents()
                     .AddInteractiveServerComponents();
                 builder.Services.AddRadzenComponents();
@@ -58,20 +64,17 @@ public class ControlSystem : CrestronControlSystem
                         options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
                     })
                     .AddIdentityCookies();
-                var mainProjectPath = "/user";
-                var dbPath = Path.Combine(mainProjectPath, "app.db");
-                var connectionString = $"Data Source={dbPath}";
-                
-                builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                    options.UseSqlite(connectionString));
 
-                // Ensure database is created and migrated
+                var dbPath = Path.Combine(DbBasePath, DbFileName);
+                builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                    options.UseSqlite($"Data Source={dbPath}"));
+
+                
                 using (var scope = builder.Services.BuildServiceProvider().CreateScope())
                 {
                     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                     try
                     {
-                        dbContext.Database.EnsureCreated();
                         dbContext.Database.Migrate();
                         CrestronConsole.PrintLine("Database auto-migration completed successfully.");
                     }
@@ -93,7 +96,7 @@ public class ControlSystem : CrestronControlSystem
 
                 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
                 if (app.Environment.IsDevelopment())
                 {
                     app.UseMigrationsEndPoint();
@@ -105,11 +108,10 @@ public class ControlSystem : CrestronControlSystem
                     app.UseHsts();
                 }
 
-//app.UseHttpsRedirection();
-                var wwwbaseDir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-                var wwwrootPath = Path.Combine(wwwbaseDir ?? "", "wwwroot");
+                //app.UseHttpsRedirection();
+                var wwwrootPath = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? "", "wwwroot");
 
-                // First, add the physical wwwroot directory
+                // Add the physical wwwroot directory for the static web assets from StaticWebAssetsLoader
                 if (Directory.Exists(wwwrootPath))
                 {
                     app.UseStaticFiles(new StaticFileOptions
@@ -125,7 +127,7 @@ public class ControlSystem : CrestronControlSystem
                 app.MapRazorComponents<App>()
                     .AddInteractiveServerRenderMode();
 
-                // Add additional endpoints required by the Identity /Account Razor components.
+                // Add additional endpoints required by the Identity/Account Razor components.
                 app.MapAdditionalIdentityEndpoints();
 
                 app.Run();

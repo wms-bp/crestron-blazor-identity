@@ -5,6 +5,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UserSecretsId>aspnet-Crestron.Blazor.Identity.Ef.Sqlite-0c05b1a7-d4c5-408d-b249-a3d63f542717</UserSecretsId>
+        <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     </PropertyGroup>
     <PropertyGroup>
         <OutputType>Library</OutputType>
