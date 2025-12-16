@@ -1,5 +1,7 @@
-﻿@page "/weather"
+@page "/weather"
 @attribute [StreamRendering]
+@using Radzen
+@using Radzen.Blazor
 
 <PageTitle>Weather</PageTitle>
 
@@ -15,31 +17,36 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Date</th>
-            <th>Temp. (C)</th>
-            <th>Temp. (F)</th>
-            <th>Summary</th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var forecast in forecasts)
-        {
-            <tr>
-                <td>@forecast.Date.ToShortDateString()</td>
-                <td>@forecast.TemperatureC</td>
-                <td>@forecast.TemperatureF</td>
-                <td>@forecast.Summary</td>
-            </tr>
-        }
-        </tbody>
-    </table>
+    <RadzenDataGrid Data="@forecasts"
+                    TItem="WeatherForecast"
+                    AllowSorting="true"
+                    PageSize="5"
+                    AllowPaging="true">
+        <Columns>
+            <RadzenDataGridColumn TItem="WeatherForecast"
+                                  Property="@nameof(WeatherForecast.Date)"
+                                  Title="Date"
+                                  Sortable="true"
+                                  Width="150px"
+                                  FormatString="{0:d}" />
+            <RadzenDataGridColumn TItem="WeatherForecast"
+                                  Property="@nameof(WeatherForecast.TemperatureC)"
+                                  Title="Temp. (C)"
+                                  Sortable="true" />
+            <RadzenDataGridColumn TItem="WeatherForecast"
+                                  Property="@nameof(WeatherForecast.TemperatureF)"
+                                  Title="Temp. (F)"
+                                  Sortable="true" />
+            <RadzenDataGridColumn TItem="WeatherForecast"
+                                  Property="@nameof(WeatherForecast.Summary)"
+                                  Title="Summary"
+                                  Sortable="true" />
+        </Columns>
+    </RadzenDataGrid>
 }
 
 @code {
-    private WeatherForecast[]? forecasts;
+    private List<WeatherForecast> forecasts = new List<WeatherForecast>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -53,7 +60,7 @@ else
             Date = startDate.AddDays(index),
             TemperatureC = Random.Shared.Next(-20, 55),
             Summary = summaries[Random.Shared.Next(summaries.Length)]
-        }).ToArray();
+        }).ToList();
     }
 
     private class WeatherForecast
@@ -63,5 +70,4 @@ else
         public string? Summary { get; set; }
         public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
     }
-
 }

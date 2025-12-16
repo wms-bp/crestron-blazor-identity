@@ -1,7 +1,7 @@
 # Crestron Blazor Identity with SQLite
 
 ## Project Overview
-This is a Blazor web application utilizing Radzen Blazor components, implementing user identity with SQLite as the database backend. Designed for Crestron control systems, this is a proof-of-concept implementation.
+This is a Blazor web application using Radzen Blazor components, implementing user identity with SQLite as the database backend. Designed for Crestron control systems, this is a proof-of-concept implementation.
 
 ## Prerequisites
 - .NET SDK
@@ -30,11 +30,8 @@ This project uses SQLite as its database. When deploying to Linux ARM:
 
 ## Deployment Notes
 - Copy the CPZ from the `/bin/release/linux-arm` directory
-- **Important**: `dotnet publish` does not clear previous publish artifacts
-  - Manually remove the Publish directory to prevent incrementally larger CPZ files
 
 ## Known Issues
-- Database Migration: Potential "table already exists" error during auto-migration
 - Reconnection prompts during authentication actions
 - UI is a basic proof-of-concept implementation
 
@@ -45,6 +42,4 @@ This project uses SQLite as its database. When deploying to Linux ARM:
 
 ## Troubleshooting
 If you encounter the SQLite migration error:
-- Verify database file permissions
 - Manually delete existing `app.db` if needed
-- Ensure SQLite library compatibility with Linux ARM

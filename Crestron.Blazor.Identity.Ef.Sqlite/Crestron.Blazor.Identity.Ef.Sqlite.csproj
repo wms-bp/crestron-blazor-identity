@@ -19,6 +19,8 @@
         <IncludeStaticWebAssetsInPublish>true</IncludeStaticWebAssetsInPublish>
         <CopyStaticWebAssetsToOutput>true</CopyStaticWebAssetsToOutput>
     </PropertyGroup>
+    
+
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
       <PlatformTarget>AnyCPU</PlatformTarget>
     </PropertyGroup>
@@ -30,6 +32,9 @@
     <ItemGroup>
         <Content Update="wwwroot\**\*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="..\README.md">
+          <Link>README.md</Link>
         </Content>
     </ItemGroup>
 
